@@ -1,0 +1,3 @@
+import TestAll
+
+main = runTests
