@@ -11,7 +11,7 @@ updatePos :: Pos -> Char -> Pos
 updatePos (Pos l c) char =
   case char of
     '\n' -> Pos (l+1) 1
-    '\t' -> Pos l ((c+8-(c-1) `\lq`mod`\lq` 8))
+    '\t' -> Pos l ((c+8-(c-1) `mod` 8))
     _    -> Pos l (c+1)
     
 initialPos :: Pos
@@ -29,8 +29,11 @@ data ParseError = ParseError [Message] deriving (Eq,Show)
 appendError :: ParseError -> Message -> ParseError
 appendError (ParseError a) msg = ParseError (msg:a)
 
+data Consumed a  = Consumed a
+                 | Empty a
+
 data Parser s a = 
- 		Parser { runParser :: State s -> ParseError -> Consumed (Reply s a) }
+ 	Parser { runParser :: State s -> ParseError -> Consumed (Reply s a) }
         
 instance Functor (Parser s) where
         fmap f p = Parser $ \st error -> case runParser p st error of

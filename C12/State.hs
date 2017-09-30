@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveFunctor #-}
 import Control.Monad
 
 newtype State s a = State { runState :: s -> (a,s) } 
@@ -9,6 +8,10 @@ newtype Reader r a = Reader { runReader :: r -> a }
                             
 instance Monad (State s) where
         return x = State $ \s -> (x,s)
+        (>>=) :: State s a -> (a -> State s b) -> State s b
+        -- h :: a -> (a, s)
+        -- f :: (a -> State s b)
+        -- g :: (s -> (b, s))
         (State h) >>= f = State $ \s -> let (a, newState) = h s
                                             (State g) = f a
                                         in g newState
