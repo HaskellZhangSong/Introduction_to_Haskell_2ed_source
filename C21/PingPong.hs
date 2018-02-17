@@ -23,16 +23,13 @@ data Pong = Pong ProcessId
 pingPong :: Process ()
 pingPong = forever $ do
   self <- getSelfPid
-  Ping pid <- expect
-  say $ "Ping from " ++ show pid
-  send pid (Pong self)
-
-pingPong' :: Process ()
-pingPong' = forever $ do
-  self <- getSelfPid
   receiveWait
-    [ match $ \(Ping pid) -> send pid (Pong self)
-    , match $ \(Pong pid) -> send pid (Ping self) ]
+    [ match $ \(Ping pid) -> do
+                say $ "Ping from " ++ show pid
+                send pid (Pong self)
+    , match $ \(Pong pid) -> do
+                say $ "Pong from " ++ show pid
+                send pid (Ping self) ]
 
 main :: IO ()
 main = do
@@ -43,5 +40,5 @@ main = do
   runProcess node $ do
     self <- getSelfPid
     register "pingPongProc" self
-    forM_ peers $ \nid -> nsendRemote nid "pingPongProc" ()
+    forM_ peers $ \nid -> nsendRemote nid "pingPongProc" (Ping self)
     pingPong
